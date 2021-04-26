@@ -1,0 +1,39 @@
+# ROMs
+*.sms
+*.gg
+
+# emulator trashes
+*.sgm
+*.sav
+*.rtc
+*.sn*
+*.dat
+
+# WLA-DX extras
+*.sym
+*.map
+*.obj
+*.o
+
+# precompiled Python
+*.pyc
+*$py.class
+
+# from github/gitignore/blob/master/Global/Windows.gitignore
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows shortcuts
+*.lnk
+*.db
+*.bak
+
+# macOS puts these literally everywhere for some godforsaken reason
+.DS_Store
