@@ -178,6 +178,7 @@ Start:
 ;	ld		hl,strControls4
 ;	coord	1,6
 ;	call	PrintString
+
 	xor		a
  	ld		[sys_CurrentFrame],a
 	
@@ -198,7 +199,7 @@ Start:
 	out		[rVDPAddr],a
 	ld		a,VDP_WritePal
 	out		[rVDPAddr],a
-	lcolor	3,0,0
+	lcolor	1,0,0
 	out		[rVDPData],a
 
 	call	DS_Update	; do this once per frame

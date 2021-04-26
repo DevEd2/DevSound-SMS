@@ -868,7 +868,6 @@ DS_UpdateCH4Mode
 	ld		[ix+_ArpPtr],l
 	ld		[ix+(_ArpPtr+1)],h
 @skiparp
-	; TODO: bass mode
 	inc		a
 	ld		e,a
 	ld		a,[DS_PSG4_Note]
