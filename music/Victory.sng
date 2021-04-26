@@ -1,0 +1,231 @@
+
+; ==== Song header ====
+mus_Victory:
+@magic	.db	"DSNG"					; identifier string
+@ver	.db	1						; version
+@ch1ptr	.dw	Victory_CH1				; CH1 pointer (absolute)
+@ch2ptr	.dw	Victory_CH2				; CH2 pointer (absolute)
+@ch3ptr	.dw	Victory_CH3				; CH3 pointer (absolute)
+@ch4ptr	.dw	Victory_CH4				; CH4 pointer (absolute)
+@spd	.db	7,7						; tick rate (alternates between the two each tick)
+@rsrvd	.db	0						; reserved for future use
+@name	.db	"Victory!        ",0	; song name (16 bytes, null-terminated)
+
+; ==== Instrument definitions ====
+
+dins	Arp1_59
+@vol	.db	15,14,14,13,13,12,12,12,11,11,11,10,10,10,10,9,9,9,9,8,8,8,8,7,7,7,7,6,6,6,5,5,5,5,5,5,4,$fe,1
+@arp	.db	0,5,9,0,0,5,5,9,9,$fe,6
+
+dinsvol	Arp1_47,ins_Arp1_59@vol
+@arp	.db	0,4,7,0,0,4,4,7,7,$fe,6
+
+dinsvol	Arp1_37,ins_Arp1_59@vol
+@arp	.db	0,3,7,0,0,3,3,7,7,$fe,6
+
+dins	OctArp
+@vol	.db	15,15,15,14,13,12,12,12,12,12,11,11,11,10,10,10,10,10,10,10,9,9,9,9,9,8,8,8,7,7,6,6,6,6,6,6,6,5,5,5,5,5,5,4,4,4,4,4,3,3,3,2,2,2,1,1,1,1,0,$ff
+@arp	.db 0,19,12,12,12,0,0,0,$fe,6
+
+dins	Bass
+@vol	.db	15,15,15,15,15,15,15,15,15,14,14,14,14,14,14,14,14,11,8,7,6,5,4,3,2,1,0,$ff
+@arp	.db	12,0,$fe,1
+
+dinsarp	BassEcho,ins_Bass@arp
+@vol	.db	15,15,15,15,15,15,15,14,14,11,8,7,$fe,1
+
+dinsarp	BassCut,ins_Bass@arp
+@vol	.db	15,15,15,15,14,11,8,7,0,$ff
+
+dins	Kick
+@vol	.db	15,15,15,8,5,2,0,$ff
+@arp	.db	0,0,0,2,$fe,1
+
+dins	Hat
+@vol	.db	11,9,0,$ff
+@arp	.db	2,$fe,1
+
+dins	Snare
+@vol	.db	15,15,14,14,13,13,12,12,11,11,10,9,9,8,7,7,6,5,5,4,3,2,1,0,$ff
+@arp	.db	2,1,0,2,$fe,1
+
+dinsvol	Cymbal,ins_Arp1_59@vol
+@arp	.db	2,2,1,1,2,$fe,1
+
+; ==== CH1 data ====
+
+Victory_CH1:
+@loop
+	dbw	cCall,@blk1
+	.db	nA_3,2
+	.db	nA_3,2
+	.db	nA_3,2
+	dbw	cIns,ins_Arp1_59
+	.db	nA_3,2
+	dbw	cIns,ins_Arp1_47
+	.db	nA_3,3
+	.db	nA_3,3
+	.db	nB_3,2
+	dbw	cCall,@blk1
+	.db	nA_4,2
+	.db	nA_4,2
+	.db	nA_4,2
+	dbw	cIns,ins_Arp1_59
+	.db	nA_4,2
+	dbw	cIns,ins_Arp1_47
+	.db	nA_4,3
+	.db	nA_4,3
+	.db	nB_4,2
+	dbw	cGoto,@loop
+	
+@blk1
+	dbw	cIns,ins_Arp1_59
+	.db	nB_3,3
+	.db	nB_3,3
+	.db	nB_3,6
+	.db	nB_3,2
+	.db	nB_3,2
+	dbw	cIns,ins_Arp1_47
+	.db	nB_3,2
+	.db	nB_3,2
+	.db	nB_3,2
+	dbw	cIns,ins_Arp1_59
+	.db	nB_3,2
+	dbw	cIns,ins_Arp1_47
+	.db	nB_3,3
+	.db	nB_3,3
+	dbw	cIns,ins_Arp1_37
+	.db	nCs4,2
+	dbw	cIns,ins_Arp1_47
+	.db	nD_4,3
+	.db	nD_4,3
+	.db	nD_4,6
+	.db	nE_4,2
+	.db	nD_4,2
+	.db	cRet
+	
+; ==== CH2 data ====
+
+Victory_CH2:
+	dbw	cIns,ins_OctArp
+@loop
+	dbw	cCall,@blk1
+	.db	nCs4,2
+	.db	nE_4,2
+	.db	nFs4,2
+	.db	nGs4,3
+	.db	nA_4,3
+	.db	nGs4,2
+	.db	nE_4,4
+	.db	nFs4,4
+	dbw	cCall,@blk1
+	.db	nE_4,2
+	.db	nFs4,2
+	.db	nE_4,2
+	.db	nCs5,3
+	.db	nD_5,3
+	.db	nCs5,2
+	.db	nA_4,4
+	.db	nB_4,4
+	dbw	cGoto,@loop
+	
+@blk1
+	.db	nGs4,3
+	.db	nFs4,3
+	.db	nGs4,4
+	.db	nGs4,2
+	.db	nB_4,2
+	.db	nGs4,2
+	.db	nFs4,2
+	.db	nE_4,2
+	.db	nFs4,2
+	.db	nGs4,2
+	.db	nFs4,3
+	.db	nE_4,3
+	.db	nCs4,2
+	.db	nE_4,10
+	.db	cRet
+	
+; ==== CH3 data ====
+
+Victory_CH3:
+	.db	cEcho,25
+	dbw	cIns,ins_Bass
+@loop
+	.db	nE_2,2
+	.db	nE_3,1
+	dbw	cIns,ins_BassCut
+	.db	nE_2,1
+	dbw	cIns,ins_Bass
+	.db	nB_2,2
+	.db	nE_3,2
+	.db	nE_2,2
+	dbw	cIns,ins_BassEcho
+	.db	nE_3,2
+	dbw	cIns,ins_Bass
+	.db	nB_2,2
+	.db	nE_3,2
+	.db	nB_1,2
+	.db	nB_2,1
+	dbw	cIns,ins_BassCut
+	.db	nB_1,1
+	dbw	cIns,ins_Bass
+	.db	nFs2,2
+	.db	nB_2,2
+	.db	nB_1,2
+	dbw	cIns,ins_BassEcho
+	.db	nB_2,2
+	dbw	cIns,ins_Bass
+	.db	nB_1,2
+	.db	nCs2,2
+	.db	nD_2,2
+	.db	nD_3,1
+	dbw	cIns,ins_BassCut
+	.db	nD_2,1
+	dbw	cIns,ins_Bass
+	.db	nA_2,2
+	.db	nD_3,2
+	.db	nD_2,2
+	dbw	cIns,ins_BassEcho
+	.db	nD_3,2
+	dbw	cIns,ins_Bass
+	.db	nE_3,2
+	.db	nD_3,2
+	.db	nA_1,2
+	.db	nA_2,1
+	dbw	cIns,ins_BassCut
+	.db	nA_1,1
+	dbw	cIns,ins_Bass
+	.db	nE_2,2
+	.db	nA_2,2
+	.db	nA_1,2
+	dbw	cIns,ins_BassEcho
+	.db	nA_2,2
+	dbw	cIns,ins_Bass
+	.db	nD_2,2
+	.db	nD_3,2
+	dbw	cGoto,@loop
+
+; ==== CH4 data ====
+
+Victory_CH4:
+	Drum	Cymbal,4
+	Drum	Snare,2
+	Drum	Hat,1
+	Drum	Hat,1
+	.db	cLoopCount,14
+@loop
+	Drum	Kick,2
+	Drum	Hat,1
+	Drum	Hat,1
+	Drum	Snare,2
+	Drum	Hat,1
+	Drum	Hat,1
+	dbw		cLoop,@loop
+	Drum	Kick,2
+	Drum	Hat,1
+	Drum	Hat,1
+	Drum	Snare,2
+	Drum	Snare,1
+	Drum	Snare,1
+	dbw		cGoto,Victory_CH4
