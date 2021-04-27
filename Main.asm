@@ -77,10 +77,7 @@
 .ramsection "System variables" slot 1 returnorg
 	sys_CurrentFrame	db
 	sys_P1_BtnsHeld		db
-	sys_P2_BtnsHeld		db
 	sys_P1_BtnsLast		db
-	sys_P2_BtnsLast		db
-	sys_ExtraButtons	db
 
 	MenuPos				db
 	MenuMax				db
@@ -380,36 +377,12 @@ SongPointers:
 ReadInput:
 	ld		a,[sys_P1_BtnsHeld]
 	ld		[sys_P1_BtnsLast],a
-	ld		a,[sys_P2_BtnsHeld]
-	ld		[sys_P2_BtnsLast],a
 	; player 1
 	in		a,[rIOPortAB]
 	cpl
 	ld		c,a
 	and		%00111111	; xx21RLDU
 	ld		[sys_P1_BtnsHeld],a
-	; player 2
-	ld		a,c
-	and		%11000000	; DUxxxxxx
-	rlca				; UxxxxxxD
-	rlca				; xxxxxxDU
-	ld		b,a
-	in		a,[rIOPortBC]
-	cpl
-	ld		c,a
-	and		%00001111	; xxxx21RL
-	rlca				; xxx21RLx
-	rlca				; xx21RLxx
-	or		b			; xx21RLDU
-	ld		[sys_P2_BtnsHeld],a
-	; extra buttons (reset, console type, gun pulse)
-	ld		a,c
-	and		%11110000	; 21CSxxxx
-	rlca				; x21CSxxx
-	rlca				; xx21CSxx
-	rlca				; xxx21CSx
-	rlca				; xxxx21CS
-	ld		[sys_ExtraButtons],a
 	ret
 
 ; --------------------------------
