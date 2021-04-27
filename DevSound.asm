@@ -1045,6 +1045,26 @@ cSpeed			=	cSetSpeed
 
 ; --------------------------------
 
+; Global instruments
+
+dins	Kick
+@vol	.db	15,15,15,8,5,2,0,$ff
+@arp	.db	0,0,0,2,$fe,1
+
+dins	Hat
+@vol	.db	11,9,0,$ff
+@arp	.db	2,$fe,1
+
+dins	Snare
+@vol	.db	15,15,14,14,13,13,12,12,11,11,10,9,9,8,7,7,6,5,5,4,3,2,1,0,$ff
+@arp	.db	2,1,0,2,$fe,1
+
+dins	Cymbal
+@vol	.db	15,14,14,13,13,12,12,12,11,11,11,10,10,10,10,9,9,9,9,8,8,8,8,7,7,7,7,6,6,6,5,5,5,5,5,5,4,$fe,1
+@arp	.db	2,2,1,1,2,$fe,1
+
+; --------------------------------
+
 ; Dummy tables
 DummyTable:
 DummyChannel:	.db	$ff
