@@ -713,10 +713,13 @@ DS_UpdateRegisters:
 	ld		bc,0
 	rla
 	call	c,DS_UpdateChannelRegisters
+	inc		c
 	rla
 	call	c,DS_UpdateChannelRegisters
+	inc		c
 	rla
 	call	c,DS_UpdateChannelRegisters
+	inc		c
 	rla
 	call	c,DS_UpdateChannelRegisters
 	ret
@@ -836,7 +839,6 @@ DS_UpdateChannelRegisters:
 
 	pop		bc
 	pop		af
-	inc		c
 	ret
 
 
