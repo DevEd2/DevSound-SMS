@@ -139,10 +139,6 @@ _ArpTick	=	15
 	
 	; TODO: YM stuff
 	
-	DS_PSG1_EchoBuffer	ds	32
-	DS_PSG2_EchoBuffer	ds	32
-	DS_PSG3_EchoBuffer	ds	32
-	
 	DS_TempSP			dw	; break glass in case of emergency
 	DS_TempFreq1		dw
 	DS_TempFreq2		dw
@@ -174,13 +170,10 @@ DevSound_Init:
 	push	hl
 	; clear sound driver RAM
 	ld		hl,DS_RAMStart
-	ld		bc,(DS_RAMEnd-DS_RAMStart)+$ff
+	ld		b,DS_RAMEnd-DS_RAMStart
 	xor		a
 -	ld		[hl],a
 	inc		hl
-	; thanks to baze from the sizecoding discord for this trick!
-	dec		bc
-	inc		b
 	djnz	-
 	; initialize the PSG
 	call	DevSound_ClearPSG

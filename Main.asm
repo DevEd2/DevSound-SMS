@@ -76,11 +76,15 @@
 
 .ramsection "System variables" slot 1 returnorg
 	sys_CurrentFrame	db
-	sys_P1_BtnsPressed	db
 	sys_P1_BtnsHeld		db
-	sys_P2_BtnsPressed	db
 	sys_P2_BtnsHeld		db
+	sys_P1_BtnsLast		db
+	sys_P2_BtnsLast		db
+	sys_ExtraButtons	db
 
+	MenuPos				db
+	MenuMax				db
+	MenuLast			db
 .ends
 
 ; ================================================================
@@ -99,10 +103,6 @@ EntryPoint:
 	out		[c],e
 	out		[c],d
 	ret
-
-	.org	$10
-.FillRAM:
-	jp		FillRAM
 
 Init:
 	ld		de,$fffc
@@ -128,11 +128,6 @@ HandleIRQ:
 
 ; --------------------------------
 
-; Input handler
-GetInput:
-
-
-; --------------------------------
 	.org	$66
 
 ; NMI handler
@@ -155,6 +150,16 @@ Start:
 	SetVDP	rVDPScrollX,0
 	SetVDP	rVDPScrollY,0
 	SetVDP	rVDPScanlineInt,80
+
+	; clear memory
+	ld		hl,$c000
+	ld		bc,$2000+255
+	xor		a
+-	ld		[hl],a
+	inc		hl
+	dec		bc
+	inc		b
+	djnz	-
 	
 	call	ClearVRAM
 	ld		hl,TextPal
@@ -177,30 +182,38 @@ Start:
 	coord	1,4
 	call	PrintString
 
-;	ld		hl,strControls1
-;	coord	1,3
-;	call	PrintString
-;	ld		hl,strControls2
-;	coord	1,4
-;	call	PrintString
-;	ld		hl,strControls3
-;	coord	1,5
-;	call	PrintString
-;	ld		hl,strControls4
-;	coord	1,6
-;	call	PrintString
+	coord	3,6
+	ld		hl,strSong1
+	call	PrintString
+	coord	3,7
+	ld		hl,strSong2
+	call	PrintString
 
-	xor		a
- 	ld		[sys_CurrentFrame],a
+	ld		hl,strControls1
+	coord	1,19
+	call	PrintString
+	ld		hl,strControls2
+	coord	1,20
+	call	PrintString
+	ld		hl,strControls3
+	coord	1,21
+	call	PrintString
+	ld		hl,strControls4
+	coord	1,22
+	call	PrintString
 	
+	ld		a,1	; number of songs
+	ld		[MenuMax],a
+	ld		[MenuLast],a
+
 	; To start playing a song:
 	; 1. Load HL with a pointer to the song's header
 	; 2. Call DS_PlaySong
-	ld		hl,mus_InsertTitle
+	ld		hl,mus_Victory
 	call	DS_PlaySong
 
-; protip: don't do this
-@loop
+MainLoop:
+	; protip: don't do this
 	ld		bc,1601+255
 -	dec		bc
 	inc		b
@@ -228,20 +241,178 @@ Start:
 	ld		hl,[DS_SongNamePtr]
 	coord	1,4
 	call	PrintString
+
+	call	ReadInput
+	; TODO: selection menu
+
+	ld		a,[sys_P1_BtnsHeld]
+	ld		b,a
+	ld		a,[sys_P1_BtnsLast]
+	cp		b
+	jp		z,@skip
+
+	ld		a,b
+
+	bit		bPort1_Up,a
+	jr		nz,@cursordown
+	bit		bPort1_Down,a
+	jr		nz,@cursorup
+	bit		bPort1_Btn1,a
+	jr		nz,@playsong
+	bit		bPort1_Btn2,a
+	jr		z,@skip
+@stopsong
+	call	DS_StopMusic
+	jr		@skip
+@playsong
+	ld		a,[MenuPos]
+	add		a
+	ld		hl,SongPointers
+	add		l
+	ld		l,a
+	jr		nc,+
+	inc		h
++	ld		a,[hl]
+	inc		l
+	ld		h,[hl]
+	ld		l,a
+	call	DS_PlaySong
+	jr		@skip
+@cursordown
+	ld		a,[MenuPos]
+	ld		[MenuLast],a
+	dec		a
+	cp		$ff
+	jr		nz,+
+	ld		a,[MenuMax]
++	ld		[MenuPos],a
+	jr		@skip
+@cursorup
+	ld		a,[MenuPos]
+	ld		[MenuLast],a
+	inc		a
+	ld		b,a
+	ld		a,[MenuMax]
+	cp		b
+	ld		a,b
+	jr		nc,+
+	xor		a
++	ld		[MenuPos],a
+	; fall through
+
+@skip
+	; draw cursor
+	coord	1,6
+	ld		a,[MenuPos]
+	ld		hl,0
+	ld		l,a
+	ld		h,0
+	add		hl,hl	; x2
+	add		hl,hl	; x4
+	add		hl,hl	; x8
+	add		hl,hl	; x16
+	add		hl,hl	; x32
+	add		hl,hl	; x64
+	add		hl,de
+	ex		de,hl
+	ld		a,e
+	out		[rVDPAddr],a
+	ld		a,d
+	and		$3f
+	or		%01000000
+	out		[rVDPAddr],a
+	ld		a,'>'-' '
+	out		[rVDPData],a
+	WaitForVDP
+	xor		a
+	out		(rVDPData),a
+
+	coord	1,6
+	ld		a,[MenuLast]
+	ld		hl,0
+	ld		l,a
+	ld		h,0
+	add		hl,hl	; x2
+	add		hl,hl	; x4
+	add		hl,hl	; x8
+	add		hl,hl	; x16
+	add		hl,hl	; x32
+	add		hl,hl	; x64
+	add		hl,de
+	ex		de,hl
+	ld		a,e
+	out		[rVDPAddr],a
+	ld		a,d
+	and		$3f
+	or		%01000000
+	out		[rVDPAddr],a
+	xor		a
+	out		[rVDPData],a
+	WaitForVDP
+	xor		a
+	out		(rVDPData),a
 	
 @wait
 	in		a,rVDPStatus
 	bit		bVDPStatus_VBlank,a
 	jr		z,@wait
 	; VBlank operations go here	
-	jr		@loop
+	jp		MainLoop
 
 strDevSound:	.db	"DevSound SMS v0.1 by DevEd",0
 strNowPlaying:	.db	"Now playing:",0
-;strControls1:	.db	"Controls:",0
-;strControls2:	.db "D-pad  . . . . . . Select song",0
-;strControls3:	.db	"I  . . . . . . . . . Play song",0
-;strControls4:	.db	"II . . . . . . . . . Stop song",0
+strSong1:		.db	"Demo song 1",0
+strSong2:		.db	"Demo song 2",0
+strControls1:	.db	"Controls:",0
+strControls2:	.db "D-pad  . . . . . . Select song",0
+strControls3:	.db	"I  . . . . . . . . . Play song",0
+strControls4:	.db	"II . . . . . . . . . Stop song",0
+
+SongPointers:
+	.dw		mus_Victory
+	.dw		mus_InsertTitle
+@end
+
+; --------------------------------
+
+; Input handler
+; Destroys: a, bc, hl
+ReadInput:
+	ld		a,[sys_P1_BtnsHeld]
+	ld		[sys_P1_BtnsLast],a
+	ld		a,[sys_P2_BtnsHeld]
+	ld		[sys_P2_BtnsLast],a
+	; player 1
+	in		a,[rIOPortAB]
+	cpl
+	ld		c,a
+	and		%00111111	; xx21RLDU
+	ld		[sys_P1_BtnsHeld],a
+	; player 2
+	ld		a,c
+	and		%11000000	; DUxxxxxx
+	rlca				; UxxxxxxD
+	rlca				; xxxxxxDU
+	ld		b,a
+	in		a,[rIOPortBC]
+	cpl
+	ld		c,a
+	and		%00001111	; xxxx21RL
+	rlca				; xxx21RLx
+	rlca				; xx21RLxx
+	or		b			; xx21RLDU
+	ld		[sys_P2_BtnsHeld],a
+	; extra buttons (reset, console type, gun pulse)
+	ld		a,c
+	and		%11110000	; 21CSxxxx
+	rlca				; x21CSxxx
+	rlca				; xx21CSxx
+	rlca				; xxx21CSx
+	rlca				; xxxx21CS
+	ld		[sys_ExtraButtons],a
+	ret
+
+; --------------------------------
 	
 ; ================================================================
 ; GFX routines

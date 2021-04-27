@@ -159,7 +159,7 @@ bPort1_Right			=	3	; 0 = pressed, 1 = not pressed
 bPort1_Btn1				=	4	; 0 = pressed, 1 = not pressed
 bPort1_Btn2				=	5	; 0 = pressed, 1 = not pressed
 bPort2_BtnUp			=	6	; 0 = pressed, 1 = not pressed
-bPort2_BtnDown			=	0	; 0 = pressed, 1 = not pressed
+bPort2_BtnDown			=	7	; 0 = pressed, 1 = not pressed
 
 ; ================================================================
 ; rIOPortBC constants
