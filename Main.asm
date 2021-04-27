@@ -76,6 +76,11 @@
 
 .ramsection "System variables" slot 1 returnorg
 	sys_CurrentFrame	db
+	sys_P1_BtnsPressed	db
+	sys_P1_BtnsHeld		db
+	sys_P2_BtnsPressed	db
+	sys_P2_BtnsHeld		db
+
 .ends
 
 ; ================================================================
@@ -120,6 +125,12 @@ HandleIRQ:
 ; Interrupt IRQ vector
 .HandleIRQ:
 	jr	HandleIRQ
+
+; --------------------------------
+
+; Input handler
+GetInput:
+
 
 ; --------------------------------
 	.org	$66
@@ -185,7 +196,7 @@ Start:
 	; To start playing a song:
 	; 1. Load HL with a pointer to the song's header
 	; 2. Call DS_PlaySong
-	ld		hl,mus_Victory
+	ld		hl,mus_InsertTitle
 	call	DS_PlaySong
 
 ; protip: don't do this
@@ -360,3 +371,4 @@ TextPal:
 
 ; Insert your music files here.
 .include	"music/Victory.sng"
+.include	"music/InsertTitle.sng"
