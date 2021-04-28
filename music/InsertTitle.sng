@@ -1,0 +1,313 @@
+
+; ==== Song header ====
+mus_InsertTitle:
+@magic	.db	"DSNG"					; identifier string
+@ver	.db	1						; version
+@ch1ptr	.dw	InsertTitle_CH1			; CH1 pointer (absolute)
+@ch2ptr	.dw	InsertTitle_CH2			; CH2 pointer (absolute)
+@ch3ptr	.dw	InsertTitle_CH3			; CH3 pointer (absolute)
+@ch4ptr	.dw	InsertTitle_CH4			; CH4 pointer (absolute)
+@spd	.db	7,7						; tick rate (alternates between the two each tick)
+@rsrvd	.db	0						; reserved for future use
+@name	.db	"[insert title]  ",0	; song name (16 bytes, null-terminated)
+
+; ==== Instrument definitions ====
+
+dins	BassKick
+@vol	.db	15,15,14,14,14,14,14,14,14,14,14,13,13,13,12,12,11,$fe,1
+@arp	.db	0,0,3,$fe,1
+
+dins	NoiseBass
+@vol	.db	0,$ff
+@arp	.db	12,0,$fe,1
+
+dins	Tom
+@vol	.db	15,0,13,13,12,12,11,11,10,10,9,9,8,8,7,7,7,0,$fe,1
+@arp	.db	15,0,12,10,9,8,6,5,4,3,2,2,1,1,1,0,$fe,1
+
+dins	IT_Arp37
+@vol	.db	15,14,14,13,13,12,12,12,11,11,11,10,10,10,10,9,9,9,9,8,8,8,8,7,7,7,7,6,6,6,5,5,5,5,5,5,4,$fe,1
+@arp	.db	0,0,3,3,7,7,$fe,6
+
+dinsvol	IT_Arp38,ins_IT_Arp37@vol
+@arp	.db	0,0,3,3,8,8,$fe,6
+
+dins	IT_Lead
+@vol	.db	15,15,15,15,15,15,15,15,15,15,15,15,15,15
+		.db	14,14,14,14,14,13,13,13,13,13,13,13,13,12
+		.db	12,11,10,10, 9, 9, 9, 8, 8, 7, 7, 7, 6, 6
+		.db	 5, 5, 5, 4, 4, 3, 3, 3, 2, 2, 1, 1, 1, 0
+		.db	$fe,1
+@arp	.db	0,19,0,$fe,1
+
+; ==== CH1 data ====
+
+InsertTitle_CH1:
+	dbw		cIns,ins_NoiseBass
+	.db		nA_1,96
+
+	dbw		cIns,ins_IT_Lead
+@loop
+	dbw		cCall,@blk1
+	.db		nD_3,2
+	.db		nE_3,1
+	.db		nG_3,2
+	.db		nD_3,6
+	.db		nB_2,1
+	.db		nD_3,3
+	.db		nB_2,3
+	.db		nD_3,2
+	.db		nB_2,1
+	.db		nD_3,2
+	.db		nB_2,1
+	.db		nDs3,3
+	.db		nB_2,3
+	.db		nDs3,2
+	.db		nB_2,1
+	.db		nA_2,2
+	.db		nB_2,1
+	.db		nE_2,48
+
+	dbw		cCall,@blk1
+	.db		nB_3,2
+	.db		nA_3,1
+	.db		nG_3,2
+	.db		nD_3,6
+	.db		nE_3,1
+	.db		nG_3,3
+	.db		nE_3,3
+	.db		nG_3,2
+	.db		nA_3,3
+	.db		nAs3,1
+	.db		nB_3,3
+	.db		nA_3,3
+	.db		nDs3,2
+	.db		nG_3,3
+	.db		nD_3,1
+	.db		nE_3,48
+
+	dbw		cCall,@blk2
+	.db		nE_3,14
+	.db		nCs3,1
+	.db		nE_3,2
+	.db		nCs3,1
+	.db		nE_3,2
+	.db		nCs3,1
+	.db		nB_2,2
+	.db		nCs3,1
+	dbw		cCall,@blk2
+	.db		nE_3,24
+	dbw		cGoto,@loop
+
+@blk1
+	.db		nB_3,3
+	.db		nA_3,3
+	.db		nG_3,2
+	.db		nA_3,1
+	.db		nG_3,2
+	.db		nE_3,1
+	.db		cRet
+
+@blk2
+	.db		nFs3,5
+	.db		nE_3,4
+	.db		nCs3,3
+	.db		nD_3,3
+	.db		nE_3,2
+	.db		nD_3,3
+	.db		nA_2,1
+	.db		nD_3,2
+	.db		nE_3,1
+	.db		nA_3,5
+	.db		nFs3,4
+	.db		nCs3,3
+	.db		nE_3,2
+	.db		nFs3,1
+	.db		nE_3,2
+	.db		nFs3,1
+	.db		nA_3,2
+	.db		nFs3,1
+	.db		nE_3,2
+	.db		nCs3,1
+	.db		nFs3,5
+	.db		nE_3,4
+	.db		nCs3,3
+	.db		nA_3,3
+	.db		nB_3,2
+	.db		nA_3,3
+	.db		nFs3,1
+	.db		nE_3,2
+	.db		nFs3,1
+	.db		cRet
+	
+; ==== CH2 data ====
+
+InsertTitle_CH2:
+	dbw		cCall,@blk1
+	dbw		cCall,@blk1
+@loop1
+	.db		cLoopCount,4
+@loop2
+	dbw		cCall,@blk1
+	dbw		cLoop,@loop2
+	.db		cLoopCount,4
+@loop3
+	dbw		cCall,@blk2
+	dbw		cLoop,@loop3
+	dbw		cGoto,@loop1
+
+@blk1
+	dbw		cIns,ins_IT_Arp37
+	.db		nE_3,5
+	.db		nE_3,4
+	.db		nE_3,3
+	dbw		cIns,ins_IT_Arp38
+	.db		nE_3,5
+	.db		nE_3,4
+	.db		nE_3,3
+	.db		nB_2,5
+	.db		nB_2,4
+	.db		nB_2,3
+	.db		nDs3,5
+	.db		nDs3,4
+	.db		nDs3,3
+	.db		cRet
+
+@blk2
+	dbw		cIns,ins_IT_Arp37
+	.db		nFs3,5
+	.db		nFs3,4
+	.db		nFs3,3
+	dbw		cIns,ins_IT_Arp38
+	.db		nFs3,5
+	.db		nFs3,4
+	.db		nFs3,3
+	.db		nCs3,5
+	.db		nCs3,4
+	.db		nCs3,3
+	.db		nF_3,5
+	.db		nF_3,4
+	.db		nF_3,3
+	.db		cRet
+
+; ==== CH3 data ====
+
+InsertTitle_CH3:
+	dbw		cCall,@blk1
+	dbw		cCall,@blk1
+@loop1
+	.db		cLoopCount,4
+@loop2
+	dbw		cCall,@blk1
+	dbw		cLoop,@loop2
+	.db		cLoopCount,4
+@loop3
+	dbw		cCall,@blk2
+	dbw		cLoop,@loop3
+	dbw		cGoto,@loop1
+
+@blk1
+	dbw		cIns,ins_NoiseBass
+	.db		nE_5,2
+	.db		nE_5,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nE_5,1
+	.db		nE_5,2
+	.db		nE_6,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nE_6,1
+
+	.db		nC_5,2
+	.db		nC_5,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nC_5,1
+	.db		nC_5,2
+	.db		nC_6,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nC_6,1
+	
+	.db		nG_5,2
+	.db		nG_5,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nG_5,1
+	.db		nG_5,2
+	.db		nG_6,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nG_6,1
+	
+	.db		nDs5,2
+	.db		nDs5,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nDs5,1
+	.db		nDs5,2
+	.db		nDs6,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nDs6,1
+	.db		cRet
+
+@blk2
+	dbw		cIns,ins_NoiseBass
+	.db		nFs5,2
+	.db		nFs5,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nFs5,1
+	.db		nFs5,2
+	.db		nFs6,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nFs6,1
+
+	dbw		cIns,ins_NoiseBass
+	.db		nD_5,2
+	.db		nD_5,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nD_5,1
+	.db		nD_5,2
+	.db		nD_6,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nB_5,1
+
+	dbw		cIns,ins_NoiseBass
+	.db		nA_5,2
+	.db		nA_5,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nA_5,1
+	.db		nA_5,2
+	.db		nA_6,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nA_6,1
+
+	dbw		cIns,ins_NoiseBass
+	.db		nF_5,2
+	.db		nF_5,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nF_5,1
+	.db		nF_5,2
+	.db		nF_6,1
+	Drum	Tom,2
+	dbw		cIns,ins_NoiseBass
+	.db		nCs6,1
+	.db		cRet
+
+; ==== CH4 data ====
+
+InsertTitle_CH4:
+	Drum	BassKick,2
+	Drum	BassKick,1
+	Drum	Snare,2
+	Drum	BassKick,1
+	dbw		cGoto,InsertTitle_CH4
