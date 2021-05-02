@@ -155,7 +155,7 @@ DS_PlaySong:	jp	DevSound_PlaySong
 DS_Update:		jp	DevSound_Update
 DS_StopMusic:	jp	DevSound_StopMusic
 	
-.db	"DevSound-SMS by DevEd | email: deved8@gmail.com"
+.db	"DevSound SMS by DevEd | email: deved8@gmail.com"
 
 ; --------------------------------
 

@@ -27,10 +27,10 @@
 	.db \1 | (\2 << 2) | (\3 << 4)
 .endm
 
-; USAGE: coord reg,x,y
+; USAGE: coord x,y
 ; x = X coordinate
 ; y = Y coordinate
-; EXAMPLE: coord de,5,6 >> de = VDP offset for given coordinates
+; EXAMPLE: coord 5,6 >> de = VDP offset for given coordinates
 .macro coord
 	ld	de,$3800 + ((\1 * 2) + (\2 * 64))
 .endm
@@ -49,7 +49,7 @@
 .endm
 
 ; Same as lbbc but for hl
-.macro	ldhl
+.macro	lbhl
 	ld	hl,(\1 << 8) | \2
 .endm
 
@@ -59,7 +59,7 @@
 ; EXAMPLE: SetVDP rVDPBorderColor,8 >> send command to change border color to VDP
 .macro SetVDP 
 	ld	de,((VDP_WriteReg | \1) << 8) | \2
-	rst	$08
+	rst	$30
 .endm
 	
 ; USAGE: WaitForVDP
@@ -75,13 +75,13 @@
 ; ================================================================
 
 .ramsection "System variables" slot 1 returnorg
-	sys_CurrentFrame	db
-	sys_P1_BtnsHeld		db
-	sys_P1_BtnsLast		db
+	sys_CurrentFrame	db	; frame counter
+	sys_P1_BtnsHeld		db	; P1 buttons
+	sys_P1_BtnsLast		db	; used to get newly pressed buttons
 
-	MenuPos				db
-	MenuMax				db
-	MenuLast			db
+	MenuPos				db	; current menu position
+	MenuMax				db	; number of menu items
+	MenuLast			db	; last menu position
 .ends
 
 ; ================================================================
@@ -92,36 +92,31 @@
 EntryPoint:
 	di
 	im		1
-	jr		Init
+	; Initialize SEGA mapper
+	ld		de,$fffc
+	ld		hl,InitValues
+	ld		bc,4
+	ldir
+	jr		Start
+InitValues:		.db	0,0,1,2
 	
-	.org	$8
+; --------------------------------
+
+	.org	$30
 .SetVDP:
 	ld		c,rVDPAddr
 	out		[c],e
 	out		[c],d
 	ret
 
-Init:
-	ld		de,$fffc
-	ld		hl,InitValues
-	ld		bc,4
-	ldir
-	jp		Start
-InitValues:		.db	0,0,1,2
-	
-; --------------------------------
-
+	.org	$38
 ; Interrupt handler
+
 HandleIRQ:
 	push	af
 	in		a,[rVDPStatus]
 	pop		af
 	reti
-
-	.org	$38
-; Interrupt IRQ vector
-.HandleIRQ:
-	jr	HandleIRQ
 
 ; --------------------------------
 
@@ -167,21 +162,21 @@ Start:
 	ld		de,0
 	call	VDPCopy
 	
+	; devsound "banner"
 	ld		hl,strDevSound
 	coord	3,1
 	call	PrintString
 	
-
+	; now playing
 	ld		hl,strNowPlaying
 	coord	1,3
 	call	PrintString
-	ld		hl,[DS_SongNamePtr]
-	coord	1,4
-	call	PrintString
 
+	; first song
 	coord	3,6
 	ld		hl,strSong1
 	call	PrintString
+	; second song
 	coord	3,7
 	ld		hl,strSong2
 	call	PrintString
@@ -223,7 +218,7 @@ MainLoop:
 	lcolor	1,0,0
 	out		[rVDPData],a
 
-	call	DS_Update	; do this once per frame
+	call	DS_Update	; do this once per frame to update music
 
 	xor		a
 	out		[rVDPAddr],a
@@ -235,6 +230,11 @@ MainLoop:
 	ld		hl,sys_CurrentFrame
 	inc		[hl]
 	
+	; Print song name.
+	; DS_SongNamePtr contains a pointer to a 16-byte null-terminated
+	; string containing the name of the song. Useful if you ever
+	; need to print the name of the currently playing song (e.g. on
+	; a sound test screen).
 	ld		hl,[DS_SongNamePtr]
 	coord	1,4
 	call	PrintString
@@ -259,6 +259,7 @@ MainLoop:
 	bit		bPort1_Btn2,a
 	jr		z,@skip
 @stopsong
+	; Use DS_StopMusic to stop music playback.
 	call	DS_StopMusic
 	jr		@skip
 @playsong
@@ -324,6 +325,7 @@ MainLoop:
 	xor		a
 	out		(rVDPData),a
 
+	; draw blank tile at previous cursor position
 	coord	1,6
 	ld		a,[MenuLast]
 	ld		hl,0
