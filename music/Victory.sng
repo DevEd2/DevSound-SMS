@@ -133,7 +133,6 @@ Victory_CH2:
 ; ==== CH3 data ====
 
 Victory_CH3:
-	.db	cEcho,25
 	dbw	cIns,ins_Bass
 @loop
 	.db	nE_2,2

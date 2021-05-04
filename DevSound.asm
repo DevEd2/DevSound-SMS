@@ -43,8 +43,8 @@ _Note		=	6
 _Tick		=	7
 _Volume		=	8
 _VolScale	=	9
-_EchoPos	=	10
-_EchoDelay	=	11
+_Unused1	=	10
+_Unused2	=	11
 _VibTick	=	12
 _VibParams	=	13
 _Arpeggio	=	14
@@ -85,8 +85,8 @@ _ArpTick	=	15
 	DS_PSG1_Tick		db	; 8
 	DS_PSG1_Volume		db	; 9
 	DS_PSG1_VolScale	db	; 10
-	DS_PSG1_EchoPos		db	; 11
-	DS_PSG1_EchoDelay	db	; 12
+	DS_PSG1_Unused1		db	; 11
+	DS_PSG1_Unused2		db	; 12
 	DS_PSG1_VibTick		db	; 13
 	DS_PSG1_VibParams	db	; 14
 	DS_PSG1_Arpeggio	db	; 15
@@ -100,8 +100,8 @@ _ArpTick	=	15
 	DS_PSG2_Tick		db	; 8
 	DS_PSG2_Volume		db	; 9
 	DS_PSG2_VolScale	db	; 10
-	DS_PSG2_EchoPos		db	; 11
-	DS_PSG2_EchoDelay	db	; 12
+	DS_PSG2_Unused1		db	; 11
+	DS_PSG2_Unused2		db	; 12
 	DS_PSG2_VibTick		db	; 13
 	DS_PSG2_VibParams	db	; 14
 	DS_PSG2_Arpeggio	db	; 15
@@ -115,8 +115,8 @@ _ArpTick	=	15
 	DS_PSG3_Tick		db	; 8
 	DS_PSG3_Volume		db	; 9
 	DS_PSG3_VolScale	db	; 10
-	DS_PSG3_EchoPos		db	; 11
-	DS_PSG3_EchoDelay	db	; 12
+	DS_PSG3_Unused1		db	; 11
+	DS_PSG3_Unused2		db	; 12
 	DS_PSG3_VibTick		db	; 13
 	DS_PSG3_VibParams	db	; 14
 	DS_PSG3_Arpeggio	db	; 15
@@ -130,8 +130,8 @@ _ArpTick	=	15
 	DS_PSG4_Tick		db	; 8
 	DS_PSG4_Volume		db	; 9
 	DS_PSG4_VolScale	db	; 10
-	DS_PSG4_EchoPos		db	; 11	; not used
-	DS_PSG4_EchoDelay	db	; 12	; not used
+	DS_PSG4_Unused1		db	; 11	; not used
+	DS_PSG4_Unused2		db	; 12	; not used
 	DS_PSG4_VibTick		db	; 13	; not used
 	DS_PSG4_VibParams	db	; 14	; not used
 	DS_PSG4_Arpeggio	db	; 15	; not used
@@ -267,7 +267,7 @@ DevSound_StopMusic:
 	ld		[DS_PSG2_TrackPtr],hl
 	ld		[DS_PSG3_TrackPtr],hl
 	ld		[DS_PSG4_TrackPtr],hl
-	ld		hl,DummyTable
+;	ld		hl,DummyTable
 	ld		[DS_PSG1_VolPtr],hl
 	ld		[DS_PSG2_VolPtr],hl
 	ld		[DS_PSG3_VolPtr],hl
@@ -423,12 +423,7 @@ DS_UpdateChannel:
 @noteproc
 	; set note
 	cp		nRest
-	jr		z,@isrest
-	cp		nEcho
 	jr		nz,@isnote
-@isecho
-	; TODO
-	; treated as rest for now
 @isrest
 	; TODO
 	; fall through for now
@@ -510,12 +505,11 @@ DS_CmdProcTable:
 	.dw		@setVolume		; Set volume level
 	.dw		@setArpeggio	; Set arpeggio
 	.dw		@setVibrato		; Set vibrato
-	.dw		@setEcho		; Set echo delay
+	.dw		@setSpeed		; Set song speed
 	.dw		@endBlock		; Restore track pointer after cCall
 	.dw		@endChannel		; End track
 	.dw		@fixed			; Set instrument and play note A-1 with given length 
 	.dw		@doLoop			; Decrement loop count and set track pointer if loop count is non-zero
-	.dw		@setSpeed		; Set song speed
 @end
 
 @setInstrument
@@ -609,14 +603,6 @@ DS_CmdProcTable:
 	; store parameters
 	ld		a,[hl]
 	ld		[ix+_VibParams],a
-	inc		hl
-	; done
-	jp		DS_UpdateChannel@getbyte
-@setEcho
-	pop		hl
-	; set delay
-	ld		a,[hl]
-	ld		[ix+_EchoDelay],a
 	inc		hl
 	; done
 	jp		DS_UpdateChannel@getbyte
@@ -808,8 +794,6 @@ DS_UpdateChannelRegisters:
 	ld		d,0
 
 	; TODO: arpeggio effect
-
-	; TODO: write to echo buffer
 
 	ld		hl,DevSound_FreqTable
 	add		hl,de
@@ -1003,7 +987,6 @@ nB_6	=	62
 nC_7	=	63 ; highest possible note wihout transposition
 
 nRest	=	64
-nEcho	=	65
 nFix	=	$80	; only used for arpeggio sequences
 
 ; --------------------------------
@@ -1016,12 +999,11 @@ cCallBlock		=	$83
 cSetVolume		=	$84
 cSetArpeggio	=	$85
 cSetVibrato		=	$86
-cSetEchoDelay	=	$87
+cSetSpeed		=	$87
 cEndBlock		=	$88
 cEndChannel		=	$89
 cFixedIns		=	$8a
 cGotoLoop		=	$8b
-cSetSpeed		=	$8c
 
 ; Command aliases
 cIns			=	cSetInstrument
@@ -1030,11 +1012,10 @@ cCall			=	cCallBlock
 cVol			=	cSetVolume
 cArp			=	cSetArpeggio
 cVib			=	cSetVibrato
-cEcho			=	cSetEchoDelay
+cSpeed			=	cSetSpeed
 cRet			=	cEndBlock
 cEnd			=	cEndChannel
 cLoop			=	cGotoLoop
-cSpeed			=	cSetSpeed
 
 ; --------------------------------
 
