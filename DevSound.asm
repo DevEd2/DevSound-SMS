@@ -388,10 +388,6 @@ DS_UpdateCH4:
 	
 DS_UpdateChannel:
 	push	af
-	push	bc
-	push	de
-	push	ix
-	push	iy
 
 	; get channel ID
 	ld		a,l
@@ -411,7 +407,8 @@ DS_UpdateChannel:
 	dec		a
 	jr		z,@doupdate
 	ld		[ix+_Tick],a
-	jr		@doneupdate
+	pop		af
+	ret
 	
 @doupdate
 	ld		l,[ix+_TrackPtr]
@@ -459,7 +456,8 @@ DS_UpdateChannel:
 	ld		a,[hl]
 	inc		hl
 	ld		[ix+(_ArpPtr+1)],a
-	jr		@doneupdate
+	pop		af
+	ret
 	
 @cmdproc
 	; TODO
@@ -478,12 +476,6 @@ DS_UpdateChannel:
 	ld		h,[hl]
 	ld		l,a
 	jp		hl
-	
-@doneupdate
-	pop		iy
-	pop		ix
-	pop		de
-	pop		bc
 	pop		af
 	ret
 
@@ -632,7 +624,8 @@ DS_CmdProcTable:
 	xor		d
 	ld		[DS_MusicPlaying],a
 	pop		hl
-	jp		DS_UpdateChannel@doneupdate
+	pop		af
+	ret
 @@bits
 	.db		%10000000,%01000000,%00100000,%00010000
 @fixed
@@ -734,8 +727,7 @@ DS_UpdateChannelRegisters:
 	ld		[ix+_Volume],a
 	jr		@donevol
 +	ld		a,[hl]
-	inc		a
-	neg
+	cpl
 	ld		c,a
 	ld		b,$ff
 	add		hl,bc
@@ -774,8 +766,7 @@ DS_UpdateChannelRegisters:
 	ld		e,a
 	jr		@donearp
 +	ld		a,[hl]
-	inc		a
-	neg
+	cpl
 	ld		c,a
 	ld		b,$ff
 	add		hl,bc
